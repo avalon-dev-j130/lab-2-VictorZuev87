@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  * Класс описывает представление о коде товара и отражает соответствующую 
@@ -16,6 +17,7 @@ import java.util.LinkedList;
  * @author Daniel Alpatov <danial.alpatov@gmail.com>
  */
 public class ProductCode {
+    
     /**
      * Код товара
      */
@@ -113,9 +115,7 @@ public class ProductCode {
         /*
          * TODO #06 Реализуйте метод hashCode
          */
-        char a = code.charAt(0);
-        char b = code.charAt(1);
-        return a + b;
+        return Objects.hashCode(code);
     }
     /**
      * Сравнивает некоторый произвольный объект с текущим объектом типа 
@@ -129,9 +129,7 @@ public class ProductCode {
     public boolean equals(Object obj) {
         if(obj instanceof ProductCode){
             ProductCode productCode = (ProductCode) obj;
-            if(code.hashCode() == productCode.code.hashCode() 
-                    && description.hashCode() == productCode.description.hashCode()
-                    && discountCode == productCode.discountCode){        
+            if(code.hashCode() == productCode.code.hashCode()) {        
                 return true;
             }
             else return false; 
@@ -192,7 +190,7 @@ public class ProductCode {
      */
     public static PreparedStatement getUpdateQuery(Connection connection) throws SQLException {
         
-        String query = "Alter into Product_Code(PROD_CODE, DISCOUNT_CODE, DESCRIPTION) values (?, ?, ?)";
+        String query =  "Update Product_Code set DISCOUNT_CODE = ?, DESCRIPTION = ? where PROD_CODE = ?";
         return connection.prepareStatement(query);
         /*
          * TODO #11 Реализуйте метод getUpdateQuery
@@ -230,15 +228,28 @@ public class ProductCode {
     public void save(Connection connection) throws SQLException {
         
       Collection<ProductCode> collection = ProductCode.all(connection);
-      if(!collection.contains(this)) {
-           PreparedStatement statement = getInsertQuery(connection);
-           statement.setString(1, this.getCode());
-           statement.setString(2, String.valueOf(this.getDiscountCode()));
-           statement.setString(3, this.getDescription());
-           statement.executeUpdate();
-      }
       
+      if(!collection.contains(this)) {
+                PreparedStatement statement = getInsertQuery(connection);
+                statement.setString(1, this.getCode());
+                statement.setString(2, String.valueOf(this.getDiscountCode()));
+                statement.setString(3, this.getDescription());
+                statement.executeUpdate();
+      }
+          //update
+      else {
+                PreparedStatement statement = getUpdateQuery(connection);
+                statement.setString(1, String.valueOf(this.getDiscountCode()));
+                statement.setString(2, this.getDescription());
+                statement.setString(3, this.getCode());
+                statement.executeUpdate();
+          //insert
+      }
     }
+      
+      
+
+      
     /**
      * Возвращает все записи таблицы PRODUCT_CODE в виде коллекции объектов
      * типа {@link ProductCode}

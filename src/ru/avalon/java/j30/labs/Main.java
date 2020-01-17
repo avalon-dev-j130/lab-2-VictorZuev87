@@ -1,5 +1,7 @@
 package ru.avalon.java.j30.labs;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,7 +24,7 @@ public class Main {
      * 
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, IOException {
         /*
          * TODO #01 Подключите к проекту все библиотеки, необходимые для соединения с СУБД.
          */
@@ -32,6 +34,10 @@ public class Main {
             printAllCodes(connection);
 
             code.setCode("MV");
+            code.save(connection);
+            printAllCodes(connection);
+            
+            code.setDescription("MV");
             code.save(connection);
             printAllCodes(connection);
         }
@@ -66,11 +72,16 @@ public class Main {
      * @return Объект класса {@link Properties}, содержащий параметры user и 
      * password
      */
-    private static Properties getProperties() {
+    private static Properties getProperties() throws IOException {
         
         Properties properties = new Properties();
-        properties.put("user", "app");
-        properties.put("password", "app");
+        
+        try(InputStream stream = ClassLoader.getSystemResourceAsStream("ru\\avalon\\java\\j30\\labs\\properties\\newproperties.properties")) {
+            properties.load(stream);
+        }
+        
+        //properties.put("user", properties.getProperty("user"));
+        //properties.put("password", properties.getProperty("password");
         
         return properties; 
     }
@@ -82,8 +93,9 @@ public class Main {
      */
     
     
-    private static Connection getConnection() throws SQLException {
+    private static Connection getConnection() throws SQLException, IOException {
         return DriverManager.getConnection(getUrl(), getProperties());
     }
     
 }
+
