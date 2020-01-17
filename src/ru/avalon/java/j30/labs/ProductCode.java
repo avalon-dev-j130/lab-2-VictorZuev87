@@ -129,8 +129,9 @@ public class ProductCode {
     public boolean equals(Object obj) {
         if(obj instanceof ProductCode){
             ProductCode productCode = (ProductCode) obj;
-            if(code == productCode.code && description == productCode.description 
-                                        && discountCode == productCode.discountCode){
+            if(code.hashCode() == productCode.code.hashCode() 
+                    && description.hashCode() == productCode.description.hashCode()
+                    && discountCode == productCode.discountCode){        
                 return true;
             }
             else return false; 
